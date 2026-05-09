@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>平沼マーチングバンド 報告ノート</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    background: #FDFAF5;
+    color: #2D2416;
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+  header {
+    background: #2D5016;
+    color: #F5E6C8;
+    padding: 16px 20px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  header .title { font-size: 17px; font-weight: 700; letter-spacing: 1px; }
+  header .sub { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+  header .flex { flex: 1; }
+  .btn-back {
+    background: none; border: none; color: #F5E6C8;
+    font-size: 24px; cursor: pointer; padding: 0 8px 0 0; line-height: 1;
+  }
+  .fab {
+    position: fixed; bottom: 24px; right: 24px;
+    width: 56px; height: 56px; border-radius: 50%;
+    background: #4A7C22; color: #fff; border: none;
+    font-size: 28px; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(45,80,22,0.4);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 20;
+  }
+  .card {
+    background: #fff; border-radius: 12px;
+    margin: 10px 16px; padding: 14px 16px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    cursor: pointer; border-left: 4px solid #4A7C22;
+  }
+  .card-date { font-size: 12px; color: #888; margin-bottom: 4px; }
+  .card-class { font-weight: 700; font-size: 15px; color: #2D5016; }
+  .card-preview { font-size: 13px; color: #666; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .empty { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
+  .empty .icon { font-size: 40px; margin-bottom: 12px; }
+  .form-wrap { padding: 16px 16px 100px; }
+  label { font-size: 13px; font-weight: 600; color: #2D5016; margin-bottom: 4px; display: block; }
+  input[type=text], input[type=date], select, textarea {
+    width: 100%; padding: 10px 12px; border-radius: 8px;
+    border: 1.5px solid #D4C9B0; font-size: 15px;
+    background: #FDFAF5; color: #2D2416;
+    margin-bottom: 14px; outline: none;
+    font-family: inherit;
+  }
+  textarea { resize: vertical; min-height: 90px; }
+  textarea.small { min-height: 60px; }
+  .btn-primary {
+    width: 100%; padding: 14px; border-radius: 10px;
+    background: #2D5016; color: #F5E6C8; border: none;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    letter-spacing: 1px; margin-bottom: 10px;
+  }
+  .btn-primary:disabled { opacity: 0.5; }
+  .btn-secondary {
+    width: 100%; padding: 13px; border-radius: 10px;
+    background: #fff; color: #2D5016;
+    border: 1.5px solid #2D5016; font-size: 15px;
+    cursor: pointer; margin-bottom: 10px;
+  }
+  .share-box {
+    background: #F0F7E8; border: 1.5px solid #B8D99A;
+    border-radius: 10px; padding: 14px; margin: 0 16px 12px;
+    font-size: 14px; white-space: pre-wrap; line-height: 1.7; color: #2D2416;
+  }
+  .btn-copy {
+    display: block; width: calc(100% - 32px);
+    margin: 0 16px 12px; padding: 13px; border-radius: 10px;
+    background: #2D5016; color: #F5E6C8; border: none;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    transition: background 0.3s;
+  }
+  .btn-copy.copied { background: #4A7C22; }
+  .btn-delete {
+    display: block; width: calc(100% - 32px);
+    margin: 8px 16px 80px; padding: 12px; border-radius: 10px;
+    background: #fff; color: #c0392b;
+    border: 1.5px solid #c0392b; font-size: 14px; cursor: pointer;
+  }
+  .section { padding: 0 16px 10px; }
+  .section-title { font-size: 12px; font-weight: 700; color: #4A7C22; margin-bottom: 4px; letter-spacing: 1px; }
+  .section-body { font-size: 15px; line-height: 1.7; color: #2D2416; white-space: pre-wrap; }
+  .detail-meta { padding: 12px 16px 4px; color: #888; font-size: 13px; }
+  .share-label { padding: 0 16px 8px; font-size: 13px; font-weight: 700; color: #2D5016; }
+  #loading {
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,255,255,0.7); z-index: 100;
+    align-items: center; justify-content: center; font-size: 16px; color: #2D5016;
+  }
+  .screen { display: none; }
+  .screen.active { display: block; }
+</style>
+</head>
+<body>
+
+<div id="loading" style="display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(255,255,255,0.75); z-index:100; align-items:center; justify-content:center;">
+  <div style="font-size:16px; color:#2D5016;">読み込み中...</div>
+</div>
+
+<!-- HOME -->
+<div id="screen-home" class="screen">
+  <header>
+    <div class="flex">
+      <div class="title">🎵 平沼マーチングバンド 報告ノート</div>
+      <div class="sub">レッスン内容を記録・共有</div>
+    </div>
+  </header>
+  <div id="report-list"></div>
+  <button class="fab" onclick="showScreen('form')">＋</button>
+</div>
+
+<!-- FORM -->
+<div id="screen-form" class="screen">
+  <header>
+    <button class="btn-back" onclick="showScreen('home')">‹</button>
+    <div class="flex"><div class="title">新しいレッスン報告</div></div>
+  </header>
+  <div class="form-wrap">
+    <label>📅 日付</label>
+    <input type="date" id="f-date">
+
+    <label>🕐 時間帯</label>
+    <select id="f-time">
+      <option value="午前">午前</option>
+      <option value="午後">午後</option>
+    </select>
+
+    <label>📍 場所</label>
+    <select id="f-location" onchange="toggleCustomLocation()">
+      <option value="平沼小音楽室">平沼小音楽室</option>
+      <option value="その他">その他（直接入力）</option>
+    </select>
+    <input type="text" id="f-location-custom" placeholder="場所を入力" style="display:none">
+
+    <label>🎸 パート</label>
+    <select id="f-part">
+      <option>管楽器</option>
+      <option>鍵盤</option>
+      <option>打楽器</option>
+    </select>
+
+    <label>👨‍🏫 先生</label>
+    <select id="f-teacher">
+      <option>粂先生</option>
+      <option>みき先生</option>
+      <option>はやと先生</option>
+      <option>古山先生</option>
+    </select>
+
+    <label>📖 今日の内容 *</label>
+    <textarea id="f-content" placeholder="例：Cメジャースケールの練習。全員通して弾けました！"></textarea>
+
+    <label>📌 宿題・次回までに</label>
+    <textarea id="f-homework" class="small" placeholder="例：32〜40小節を自主練習"></textarea>
+
+    <label>📢 連絡事項</label>
+    <textarea id="f-note" class="small" placeholder="例：次回は発表会の衣装確認があります"></textarea>
+
+    <label>✍️ 担当者名</label>
+    <input type="text" id="f-author" placeholder="例：田中">
+
+    <button class="btn-primary" id="btn-save" onclick="submitReport()">保存する</button>
+    <button class="btn-secondary" onclick="showScreen('home')">キャンセル</button>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div id="screen-detail" class="screen">
+  <header>
+    <button class="btn-back" onclick="showScreen('home')">‹</button>
+    <div class="flex"><div class="title">レッスン報告</div></div>
+  </header>
+  <div id="detail-content"></div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyCrP2aIWwcuj1bpRKaEldof_JTL5x5okRQ",
+    projectId: "hiranuma-marching",
+  });
+  const db = getFirestore(app);
+
+  let reports = [];
+
+  function formatDate(dateStr) {
+    const d = new Date(dateStr + "T00:00:00");
+    return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${"日月火水木金土"[d.getDay()]}）`;
+  }
+
+  function buildShareText(r) {
+    let t = `🎵 レッスン報告\n📅 ${formatDate(r.date)}${r.timeSlot ? " " + r.timeSlot : ""}\n📍 ${r.location}\n🎸 ${r.partName}\n\n【今日の内容】\n${r.content}`;
+    if (r.homework) t += `\n\n【宿題・次回までに】\n${r.homework}`;
+    if (r.note) t += `\n\n【連絡事項】\n${r.note}`;
+    if (r.author) t += `\n\n担当: ${r.author}`;
+    return t;
+  }
+
+  window.showScreen = function(name) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById("screen-" + name).classList.add("active");
+    if (name === "home") renderHome();
+    if (name === "form") {
+      const today = new Date().toISOString().split("T")[0];
+      document.getElementById("f-date").value = today;
+      document.getElementById("f-location").value = "平沼小音楽室";
+      document.getElementById("f-location-custom").style.display = "none";
+      document.getElementById("f-part").value = "管楽器";
+      document.getElementById("f-content").value = "";
+      document.getElementById("f-homework").value = "";
+      document.getElementById("f-note").value = "";
+      document.getElementById("f-author").value = "";
+      document.getElementById("f-time").value = "午前";
+      document.getElementById("f-teacher").value = "粂先生";
+      document.getElementById("f-time").value = "午前";
+      document.getElementById("f-teacher").value = "粂先生";
+    }
+  }
+
+  window.toggleCustomLocation = function() {
+    const sel = document.getElementById("f-location");
+    const custom = document.getElementById("f-location-custom");
+    custom.style.display = sel.value === "その他" ? "block" : "none";
+  }
+
+  function renderHome() {
+    const el = document.getElementById("report-list");
+    if (reports.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="icon">📝</div><div>レッスン報告がまだありません</div><div style="margin-top:6px">＋ボタンで追加しましょう</div></div>`;
+      return;
+    }
+    el.innerHTML = reports.map(r => `
+      <div class="card" onclick="showDetail('${r.id}')">
+        <div class="card-date">${formatDate(r.date)}${r.timeSlot ? "　" + r.timeSlot : ""}　📍 ${r.location}</div>
+        <div class="card-class">🎸 ${r.partName}</div>
+        <div class="card-preview">${r.content}</div>
+      </div>
+    `).join("");
+  }
+
+  window.showDetail = function(id) {
+    const r = reports.find(x => x.id === id);
+    if (!r) return;
+    const shareText = buildShareText(r);
+    document.getElementById("detail-content").innerHTML = `
+      <div class="detail-meta">${formatDate(r.date)}${r.timeSlot ? "　" + r.timeSlot : ""}　📍 ${r.location}</div>
+      <div class="section"><div class="section-title">クラス</div><div class="section-body">🎸 ${r.partName}</div></div>
+      <div class="section"><div class="section-title">今日の内容</div><div class="section-body">${r.content}</div></div>
+      ${r.homework ? `<div class="section"><div class="section-title">宿題・次回までに</div><div class="section-body">${r.homework}</div></div>` : ""}
+      ${r.note ? `<div class="section"><div class="section-title">連絡事項</div><div class="section-body">${r.note}</div></div>` : ""}
+      ${r.author ? `<div class="section"><div style="font-size:13px;color:#888">担当: ${r.author}</div></div>` : ""}
+      <div style="height:16px"></div>
+      <div class="share-label">📋 LINEなどで共有するテキスト</div>
+      <div class="share-box" id="share-text-box">${shareText}</div>
+      <button class="btn-copy" id="btn-copy" onclick="copyShare()">📋 テキストをコピー</button>
+      <button class="btn-delete" onclick="doDelete('${r.id}')">この報告を削除</button>
+    `;
+    showScreen("detail");
+  }
+
+  window.copyShare = function() {
+    const text = document.getElementById("share-text-box").innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById("btn-copy");
+      btn.textContent = "✅ コピーしました！";
+      btn.classList.add("copied");
+      setTimeout(() => { btn.textContent = "📋 テキストをコピー"; btn.classList.remove("copied"); }, 2000);
+    });
+  }
+
+  window.doDelete = async function(id) {
+    if (!confirm("この報告を削除しますか？")) return;
+    setLoading(true);
+    await deleteDoc(doc(db, "reports", id));
+    reports = reports.filter(r => r.id !== id);
+    setLoading(false);
+    showScreen("home");
+  }
+
+  window.submitReport = async function() {
+    const content = document.getElementById("f-content").value.trim();
+    if (!content) { alert("「今日の内容」を入力してください"); return; }
+    const locSel = document.getElementById("f-location").value;
+    const location = locSel === "その他" ? document.getElementById("f-location-custom").value : locSel;
+    const data = {
+      date: document.getElementById("f-date").value,
+      location,
+      partName: document.getElementById("f-part").value,
+      content,
+      homework: document.getElementById("f-homework").value.trim(),
+      note: document.getElementById("f-note").value.trim(),
+      author: document.getElementById("f-author").value.trim(),
+      timeSlot: document.getElementById("f-time").value,
+      teacher: document.getElementById("f-teacher").value,
+      createdAt: new Date().toISOString(),
+    };
+    setLoading(true);
+    const docRef = await addDoc(collection(db, "reports"), data);
+    reports.unshift({ id: docRef.id, ...data });
+    reports.sort((a, b) => b.date.localeCompare(a.date));
+    setLoading(false);
+    showScreen("home");
+  }
+
+  function setLoading(on) {
+    document.getElementById("loading").style.display = on ? "flex" : "none";
+  }
+
+  async function init() {
+    setLoading(true);
+    const q = query(collection(db, "reports"), orderBy("date", "desc"));
+    const snap = await getDocs(q);
+    reports = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    setLoading(false);
+    showScreen("home");
+  }
+
+  init();
+</script>
+</body>
+</html>
